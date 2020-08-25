@@ -1,0 +1,26 @@
+upstream mirrors {
+	server	127.0.0.1:8001;
+	server	127.0.0.1:8002	backup;
+	server	127.0.0.1:8003	backup;
+}
+server
+{
+	listen	127.0.0.1:8001;
+	location / {
+		proxy_pass	https://mirror.fra10.de.leaseweb.net/archlinux/$request_uri;
+	}
+}
+server
+{
+	listen	127.0.0.1:8002;
+	location / {
+		proxy_pass	https://arch.jensgutermuth.de/$request_uri;
+	}
+}
+server
+{
+	listen	127.0.0.1:8003;
+	location / {
+		proxy_pass	https://mirror.metalgamer.eu/archlinux/$request_uri;
+	}
+}
