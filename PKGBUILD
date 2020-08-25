@@ -7,7 +7,7 @@ arch=('any')
 license=('BSD')
 depends=('nginx' 'python')
 source=("update-nginx.py")
-md5sums=('d3a4d4682cdd1ca6ba6ea0e95f9905bd')
+md5sums=('f0fadd17a852f922b3ffaff678f3a78e')
 
 package() {
     install -Dm755 "$srcdir/update-nginx.py" "$pkgdir/usr/bin/mirrorlist-update-nginx"

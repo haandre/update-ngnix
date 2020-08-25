@@ -2,7 +2,7 @@
 
 import argparse
 
-def do_parse(mirrorlist,num=3,Verbose=None):
+def do_parse(mirrorlist,num=3,Verbose=None,quite=False):
     servers =[]
     if Verbose: print(f"Reading from mirrorlist {mirrorlist}")
     with open(mirrorlist) as reader:
@@ -13,6 +13,9 @@ def do_parse(mirrorlist,num=3,Verbose=None):
                 _,u = line.split(" = ")
                 servers.append(u.replace("$repo/os/$arch","$request_uri"))
                 if len(servers) == num: break
+    if num > len(servers):
+        if not(quite): print(f"number of mirrors keep to {len(servers)} as there are only that much in the mirrorlist! {num} where requested")
+        num=len(servers)
     output = "upstream mirrors {\n"
     for i in range(num):
         output += f"\tserver\t127.0.0.1:{i + 8001}"
@@ -57,7 +60,7 @@ Number of Mirrors: {args.mirrors[0]}""")
 
 def main():
     args = parse_args()
-    result = do_parse(args.mirror_list[0],args.mirrors[0],args.verbose)
+    result = do_parse(args.mirror_list[0],int(args.mirrors[0]),args.verbose,args.quite)
     if args.dry_run:
         if not(args.quite):
             print(result)
