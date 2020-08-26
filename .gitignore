@@ -5,6 +5,7 @@ __pycache__/
 
 # pacman archives
 *.zstd
+*.xz
 
 # C extensions
 *.so
