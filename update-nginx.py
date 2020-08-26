@@ -1,6 +1,7 @@
 #!/usr/bin/python 
 
 import argparse
+from os.path import isfile
 
 def do_parse(mirrorlist,num=3,Verbose=None,quite=False):
     servers =[]
@@ -60,13 +61,16 @@ Number of Mirrors: {args.mirrors[0]}""")
 
 def main():
     args = parse_args()
-    result = do_parse(args.mirror_list[0],int(args.mirrors[0]),args.verbose,args.quite)
-    if args.dry_run:
-        if not(args.quite):
-            print(result)
+    if isfile(args.mirror_list[0]):
+        result = do_parse(args.mirror_list[0],int(args.mirrors[0]),args.verbose,args.quite)
+        if args.dry_run:
+            if not(args.quite):
+                print(result)
+        else:
+            if args.verbose: print(f"writing to configfile: {args.config_file[0]}")
+            with open(args.config_file[0],"w") as writer:
+                writer.write(result)            
     else:
-        if args.verbose: print(f"writing to configfile: {args.config_file[0]}")
-        with open(args.config_file[0],"w") as writer:
-            writer.write(result)
+        print(f"mirrorlist: {args.mirror_list[0]} does nit exist!")
 
 if __name__ == "__main__": main()
