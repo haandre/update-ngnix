@@ -36,12 +36,13 @@ def parse_args():
     quite_help_text='output less'
     mirrorlist='/etc/pacman.d/mirrorlist'
     config_file='/etc/nginx/server.conf'
+    default_num=3
 
     parser = argparse.ArgumentParser(description='update nginx config with mirrors from mirrorlist.')
     parser.add_argument('-n','--dry-run',help="don't write config file", action='store_true')
     parser.add_argument('-i','--mirror-list',help=f"mirrorlist file to be parsed. ({mirrorlist})",nargs=1,default=[mirrorlist])
     parser.add_argument('-o','--config-file',help=f"config snip in to write to ({config_file})",nargs=1,default=[config_file])
-    parser.add_argument('-N','--mirrors',help=f"Number of mirrors to be used (3) ({config_file})",nargs=1,default=[3])
+    parser.add_argument('-N','--mirrors',help=f"Number of mirrors to be used ({default_num})",nargs=1,default=[default_num])
 
     group_status = parser.add_mutually_exclusive_group()
     group_status.add_argument('-v','--verbose',help=verbose_help_text, action='count')
