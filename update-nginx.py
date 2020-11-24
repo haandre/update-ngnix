@@ -1,21 +1,23 @@
 #!/usr/bin/python 
 
-import argparse
+from argparse import ArgumentParser
+import logging
 from os.path import isfile
 
-def do_parse(mirrorlist,num=3,Verbose=None,quite=False):
+def do_parse(mirrorlist,num=3):
     servers =[]
-    if Verbose: print(f"Reading from mirrorlist {mirrorlist}")
+    logging.debug(f"Reading from mirrorlist {mirrorlist}")
     with open(mirrorlist) as reader:
         f = reader.read()
         f = f.split("\n")
         for line in f:
-            if("Server =" in line):
+            # if("Server =" in line):
+            if line.startswith("Server ="):
                 _,u = line.split(" = ")
                 servers.append(u.replace("$repo/os/$arch","$request_uri"))
                 if len(servers) == num: break
     if num > len(servers):
-        if not(quite): print(f"number of mirrors keep to {len(servers)} as there are only that much in the mirrorlist! {num} where requested")
+        logging.warn(f"number of mirrors keep to {len(servers)} as there are only that much in the mirrorlist! {num} where requested")
         num=len(servers)
     output = "upstream mirrors {\n"
     for i in range(num):
@@ -33,44 +35,43 @@ def do_parse(mirrorlist,num=3,Verbose=None,quite=False):
 
 
 def parse_args():
-    verbose_help_text= 'more verbose output'
-    quite_help_text='output less'
     mirrorlist='/etc/pacman.d/mirrorlist'
     config_file='/etc/nginx/server.conf'
 
-    parser = argparse.ArgumentParser(description='update nginx config with mirrors from mirrorlist.')
+    parser = ArgumentParser(description='update nginx config with mirrors from mirrorlist.')
     parser.add_argument('-n','--dry-run',help="don't write config file", action='store_true')
     parser.add_argument('-i','--mirror-list',help=f"mirrorlist file to be parsed. ({mirrorlist})",nargs=1,default=[mirrorlist])
     parser.add_argument('-o','--config-file',help=f"config snip in to write to ({config_file})",nargs=1,default=[config_file])
     parser.add_argument('-N','--mirrors',help=f"Number of mirrors to be used (3) ({config_file})",nargs=1,default=[3])
 
-    group_status = parser.add_mutually_exclusive_group()
-    group_status.add_argument('-v','--verbose',help=verbose_help_text, action='count')
-    group_status.add_argument('-q','--quite',help=quite_help_text, action='store_true')
-
+    parser.add_argument("-l", "--log", dest="loglevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], help="Set the logging level")
+    
     args = parser.parse_args()
-
-    if args.verbose:
-        print(f"""running script with the following parameters:
-   dry-run: {args.dry_run}
-Mirrorlist: {args.mirror_list[0]}
-Configfile: {args.config_file[0]}
-Number of Mirrors: {args.mirrors[0]}""")
 
     return args
 
 def main():
     args = parse_args()
+    if args.loglevel:
+        logging.basicConfig(level=getattr(logging, args.loglevel))
+        logging.info(f"Set loglevel to: {getattr(logging, args.loglevel)}")
+ 
+    logging.debug("running script with the following parameters:")
+    logging.debug(f"dry-run: {args.dry_run}")
+    logging.debug(f"Mirrorlist: {args.mirror_list[0]}")
+    logging.debug(f"Configfile: {args.config_file[0]}")
+    logging.debug(f"Number of Mirrors: {args.mirrors[0]}")
+
+
     if isfile(args.mirror_list[0]):
-        result = do_parse(args.mirror_list[0],int(args.mirrors[0]),args.verbose,args.quite)
+        result = do_parse(args.mirror_list[0],int(args.mirrors[0]))
         if args.dry_run:
-            if not(args.quite):
-                print(result)
+            logging.info(result)
         else:
-            if args.verbose: print(f"writing to configfile: {args.config_file[0]}")
+            logging.info(f"writing to configfile: {args.config_file[0]}")
             with open(args.config_file[0],"w") as writer:
                 writer.write(result)            
     else:
-        print(f"mirrorlist: {args.mirror_list[0]} does nit exist!")
+        logging.error(f"mirrorlist: {args.mirror_list[0]} does not exist!")
 
 if __name__ == "__main__": main()
