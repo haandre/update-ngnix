@@ -37,12 +37,13 @@ def do_parse(mirrorlist,num=3):
 def parse_args():
     mirrorlist='/etc/pacman.d/mirrorlist'
     config_file='/etc/nginx/server.conf'
+    default_num=3
 
     parser = ArgumentParser(description='update nginx config with mirrors from mirrorlist.')
     parser.add_argument('-n','--dry-run',help="don't write config file", action='store_true')
     parser.add_argument('-i','--mirror-list',help=f"mirrorlist file to be parsed. ({mirrorlist})",nargs=1,default=[mirrorlist])
     parser.add_argument('-o','--config-file',help=f"config snip in to write to ({config_file})",nargs=1,default=[config_file])
-    parser.add_argument('-N','--mirrors',help=f"Number of mirrors to be used (3) ({config_file})",nargs=1,default=[3])
+    parser.add_argument('-N','--mirrors',help=f"Number of mirrors to be used ({default_num})",nargs=1,default=[default_num])
 
     parser.add_argument("-l", "--log", dest="loglevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], help="Set the logging level")
     
